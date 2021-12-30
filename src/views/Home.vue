@@ -114,20 +114,15 @@
 
 <script>
 import DataBoxes from '../components/DataBoxes.vue'
-  import Articles from '../components/NewsArticles.vue'
+import Articles from '../components/NewsArticles.vue'
+import axios from "axios";
 
   export default {
     components: { Articles, DataBoxes },
 
     data(){
       return{
-        news:[
-          {title:'new variant discoverd in the united states', description:'In the state of ohio, a deadly variant has spread among them'},
-          {title:'new variant discoverd in the united states', description:'In the state of ohio, a deadly variant has spread among them'},
-          {title:'new variant discoverd in the united states', description:'In the state of ohio, a deadly variant has spread among them'},
-          {title:'new variant discoverd in the united states', description:'In the state of ohio, a deadly variant has spread among them'},
-          {title:'new variant discoverd in the united states', description:'In the state of ohio, a deadly variant has spread among them'},
-        ],
+        news:[],
         Months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
         NewCases:[
           0,16,167,200,400,1200,3000,10000,7000,2000,1000,150
@@ -142,12 +137,35 @@ import DataBoxes from '../components/DataBoxes.vue'
         countries: [],
       }
     },
-
+    mounted(){
+      this.fetchNewsData()
+    },
     methods: {
       async fetchCovidData() {
         const res = await fetch('https://api.covid19api.com/summary')
         const data = await res.json()
         return data
+      },
+      
+      async fetchNewsData(){
+        const options = {
+          method: 'GET',
+          url: 'https://covid-19-news5.p.rapidapi.com/news',
+          headers: {
+            'x-rapidapi-host': 'covid-19-news5.p.rapidapi.com',
+            'x-rapidapi-key': '4775c01834msh095a5c3918e458fp11cc9djsn1bbceae4a4c6'
+          }
+        };
+        let self = this
+        axios.request(options).then(function (response) {
+          self.news = response.data
+          console.log(self.news)
+        }).catch(function (error) {
+          console.error(error);
+        });
+      },
+      setNewsData(data){
+        this.news = data
       },
       getCountryData(country) {
         this.stats = country
@@ -163,6 +181,8 @@ import DataBoxes from '../components/DataBoxes.vue'
     },
     async created() {
       const data = await this.fetchCovidData()
+      // const newsData= await this.fetchNewsData()
+      // console.log(newsData)
       this.dataDate = data.Date
       this.stats = data.Global
       this.countries = data.Countries

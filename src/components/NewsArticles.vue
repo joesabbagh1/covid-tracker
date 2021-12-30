@@ -1,14 +1,12 @@
 <template>
   <v-row class="">
     <v-col cols="12"> 
-      <a :href="item.url">
-        <div class="text-body-1 font-weight-bold text-uppercase">
-          {{item.title}}
-        </div>
-        <div class="text-body-1 grey--text">
-          {{item.description}}
-        </div>
+      <a :href="item.url" class="text-decoration-none text-body-1 grey--text text--darken-2 ">
+        {{item.title}}
       </a>
+    </v-col>
+    <v-col cols="12" class="py-0" align="right">
+      Source: {{item.source}}
     </v-col>
     <v-col cols="12">
       <v-divider></v-divider>
