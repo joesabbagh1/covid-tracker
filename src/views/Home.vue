@@ -5,7 +5,7 @@
         <v-col cols="9" class="pt-16">
           <v-row>
             <v-col cols="12" align="center">
-              <DataBoxes :daily="dailyData" :countries="countries" :dailyNew="newData" />
+              <DataBoxes :daily="dailyData" :countries="countries" :dailyNew="newData" @get-country="changeSelecyedCountry" />
             </v-col>
           </v-row>
           <v-row class="pt-16">
@@ -143,12 +143,12 @@ import axios from "axios";
     },
 
     methods: {
-      async fetchCovidData() {
+      async fetchCovidData(country) {
 
         const options = {
           method: 'GET',
           url: 'https://coronavirus-map.p.rapidapi.com/v1/spots/month',
-          params: {region: 'usa'},
+          params: {region: `${country}`},
           headers: {
             'x-rapidapi-host': 'coronavirus-map.p.rapidapi.com',
             'x-rapidapi-key': '4775c01834msh095a5c3918e458fp11cc9djsn1bbceae4a4c6'
@@ -202,9 +202,9 @@ import axios from "axios";
         });
       },
 
-      getCountryData(country) {
-        this.stats = country
-        this.title = country.Country
+      changeSelecyedCountry(country) {
+        this.countryTitle = country
+        this.fetchCovidData(country)
       },
       // async clearCountryData() {
       //   this.loading = true
