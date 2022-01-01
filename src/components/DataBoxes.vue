@@ -1,8 +1,11 @@
 <template>
-  <v-row>
-    <v-col cols="3" class="pa-1">
-      <div>
-        {{selected}}
+  <v-row align="center">
+    <v-col cols="3" class="pa-1 pr-3">
+      <div v-if="title == 'globe'" class="text-h5 font-weight-medium grey--text text--darken-4">
+        Stats overview on the {{title}}
+      </div>
+      <div v-else class="text-h5 font-weight-medium grey--text text--darken-4">
+        Stats overview on {{title}}
       </div>
       <div>
         <v-select
@@ -10,7 +13,6 @@
           v-model="selected"
           :items="countries"
           label="Select"
-          solo
           single-line
         >
         </v-select>
@@ -47,7 +49,7 @@
       <div class="grey lighten-2 grey--text text--darken-2 text-h6 font-weight-regular pb-1">
         +{{ numberWithCommas(dailyNew.deaths) }}
       </div>
-      <div class="grey lighten-1 grey--text text--darken-2 text-subtitle-1 font-weight-bold rounded-b-lg pb-1">
+      <div class="grey lighten-1 grey--text text--darken-2 text-subtitle-1 font-weight-bold rounded-b-lg">
         Death
       </div>
     </v-col>
@@ -61,6 +63,7 @@ export default {
   data() {
     return {
       selected: 0,
+      title: 'globe'
     }
   },
 
@@ -71,6 +74,7 @@ export default {
 
     onChange() {
       const country = this.selected
+      this.title = country
       this.$emit('get-country', country)
     },
   },
