@@ -5,7 +5,7 @@
         <v-col cols="9" class="pt-16">
           <v-row>
             <v-col cols="12" align="center">
-              <DataBoxes :daily="dailyData" :countries="countries" :dailyNew="newData" @get-country="changeSelecyedCountry" />
+              <DataBoxes :daily="dailyData" :countries="countries" :dailyNew="newData" @get-country="changeSelectedCountry" />
             </v-col>
           </v-row>
           <v-row class="pt-16">
@@ -128,7 +128,8 @@ import axios from "axios";
         dateData: [],
         dates:[],
         dailyData:[],
-        newData:[]
+        newData:[],
+        countriesData:[]
       }
     },
 
@@ -136,6 +137,7 @@ import axios from "axios";
       // this.fetchNewsData()
       await this.fetchCovidData()
       await this.fetchCovidSummaryData()
+      await this.fetchGlobalHistoryData()
       // this.dataDate = data.Date
       // this.stats = data.Global
       // this.countries = data.Countries
@@ -158,7 +160,7 @@ import axios from "axios";
         axios.request(options).then(function (response) {
           self.dates = Object.keys(response.data.data);
           self.dateData = Object.values(response.data.data);
-          
+
         }).catch(function (error) {
           console.error(error);
         });
@@ -175,10 +177,10 @@ import axios from "axios";
         };
         let self = this
         axios.request(options).then(function (response) {
-          self.dailyData = response.data.data.summary
-          self.newData = response.data.data.change
           self.countries = Object.keys(response.data.data.regions)
-          console.log(self.countries)
+          self.dailyData = response.data.data.summary
+          self.newData = response.data.data.change   
+          self.countriesData = response.data.data.regions
         }).catch(function (error) {
           console.error(error);
         });
@@ -202,8 +204,28 @@ import axios from "axios";
         });
       },
 
-      changeSelecyedCountry(country) {
-        this.countryTitle = country
+      async fetchGlobalHistoryData(){
+        const options = {
+          method: 'GET',
+          url: 'https://coronavirus-map.p.rapidapi.com/v1/spots/summary',
+          headers: {
+            'x-rapidapi-host': 'coronavirus-map.p.rapidapi.com',
+            'x-rapidapi-key': '4775c01834msh095a5c3918e458fp11cc9djsn1bbceae4a4c6'
+          }
+        };
+        let self = this
+        axios.request(options).then(function (response) {
+          self.dates = Object.keys(response.data.data);
+          self.dateData = Object.values(response.data.data);
+          console.log(response.data);
+        }).catch(function (error) {
+          console.error(error);
+        });
+      },
+
+      changeSelectedCountry(country) {
+        this.dailyData = this.countriesData[country]
+        this.newData = this.countriesData[country].change   
         this.fetchCovidData(country)
       },
       // async clearCountryData() {
@@ -221,6 +243,7 @@ import axios from "axios";
           return item.total_cases
         })
         cases.reverse()
+        cases.splice(0, cases.length-23)
         return cases
       },
       TotalDeaths(){
@@ -228,12 +251,14 @@ import axios from "axios";
           return item.deaths
         })
         cases.reverse()
+        cases.splice(0, cases.length-23)
+        console.log(cases)
         return cases
       },
       NewCases(){
         const allCases = this.dateData
         const newCases = []
-        for (let i = 1; i < allCases.length - 1; i++) {
+        for (let i = 1; i < 23 ; i++) {
           let newCase = Math.abs(allCases[i].total_cases - allCases[i+1].total_cases)
           newCases.push(newCase)
         }
@@ -243,20 +268,12 @@ import axios from "axios";
       NewDeaths(){
         const allCases = this.dateData
         const newCases = []
-        for (let i = 1; i < allCases.length - 1; i++) {
+        for (let i = 1; i < 23; i++) {
           let newCase = allCases[i].deaths - allCases[i-1].deaths
           newCases.push(newCase)
         }
         newCases.reverse()
         return newCases
-      },
-      DailyNewCase(){
-        const current = this.dateData[0].total_cases - this.dateData[1].total_cases
-        return current
-      },
-      DailyNewDeath(){
-        const current = this.dateData[0].deaths - this.dateData[1].deaths
-        return current
       },
     }
   }
