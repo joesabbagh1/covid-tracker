@@ -25,8 +25,11 @@
                   >
                   </v-sparkline>
                 </v-sheet>
-                <div class="text-body-1 font-weight-black">
-                  Total Cases
+                <div class="text-h6 font-weight-black">
+                  Total Cases 
+                </div>
+                <div class="text-caption">
+                  the last month
                 </div>
               </div>
             </v-col>
@@ -45,6 +48,9 @@
                 </v-sheet>
                 <div class="text-body-1 font-weight-black">
                   Total Deaths
+                </div>
+                <div class="text-caption">
+                  the last month
                 </div>
               </div>
             </v-col>
@@ -69,6 +75,9 @@
                 <div class="text-body-1 font-weight-black">
                   New Cases
                 </div>
+                <div class="text-caption">
+                  the last month
+                </div>
               </div>
             </v-col>
             <v-col cols="6" align="center" class="pa-6">
@@ -90,20 +99,28 @@
                 <div class="text-body-1 font-weight-black">
                   New Deaths
                 </div>
+                <div class="text-caption">
+                  the last month
+                </div>
               </div>
             </v-col>
           </v-row>
         </v-col>
-        <v-col cols="3" class="pt-16">
+        <v-col cols="3" class="pt-16 pl-8">
           <v-container>
             <v-row>
-              <v-col class="text-h3">
+              <v-col class="text-h3 pt-0">
                 NEWS
               </v-col>
             </v-row>
-              <template v-for="item in news" >
-                <Articles :key="item.title" :item="item" />
+              <template v-for="(item, index) in news" >
+                <Articles :key="item.title" :item="item" v-if="index < newsIndex" />
               </template>
+              <v-col class="pl-0 pt-6">
+                <v-btn @click="newsIndex += 5">
+                  Show More
+                </v-btn>
+              </v-col>
           </v-container>
         </v-col>
       </v-row>
@@ -122,6 +139,7 @@ import axios from "axios";
     data(){
       return{
         news:[],
+        newsIndex:4,
         loading: true,
         countryTitle: 'Global',
         countries:[],
@@ -134,13 +152,10 @@ import axios from "axios";
     },
 
     async created() {
-      // this.fetchNewsData()
+      this.fetchNewsData()
       await this.fetchCovidData()
       await this.fetchCovidSummaryData()
       await this.fetchGlobalHistoryData()
-      // this.dataDate = data.Date
-      // this.stats = data.Global
-      // this.countries = data.Countries
       this.loading = false
     },
 
@@ -198,7 +213,10 @@ import axios from "axios";
         let self = this
         axios.request(options).then(function (response) {
           self.news = response.data
-          console.log(self.news)
+          for (let i = self.news.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [self.news[i], self.news[j]] = [self.news[j], self.news[i]];
+          }
         }).catch(function (error) {
           console.error(error);
         });
