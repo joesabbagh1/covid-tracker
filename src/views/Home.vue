@@ -1,5 +1,5 @@
 <template>
-  <main v-if="!loading">
+  <main v-if="!loading" class="indigo lighten-5">
     <v-container fluid>
       <v-row class="pl-16">
         <v-col cols="9" class="pt-16">
@@ -181,6 +181,15 @@
         </v-col>
       </v-row>
     </v-container>
+  </main>
+  <main class="white" v-else>
+    <v-conainer fluid fill-height class="white">
+      <v-row justify="center" align="center">
+        <v-col align="center">
+          <v-img width="100" :src="require('../assets/hourglass.gif')" />
+        </v-col>
+      </v-row>
+    </v-conainer>
   </main>
 </template>
 
