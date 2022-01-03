@@ -8,14 +8,14 @@
               <DataBoxes :daily="dailyData" :countries="countries" :dailyNew="newData" @get-country="changeSelectedCountry" />
             </v-col>
           </v-row>
-          <v-row justify="center" class="">
-            <v-col cols="2" class="px-7">
+          <v-row justify="start" class="">
+            <v-col cols="2" class="pa-7 pl-0">
               <v-select
                 v-model="graphsDate"
                 :items="dateSelection"
+                background-color="grey lighten-1"
                 flat
                 solo
-                single-line
                 dense
                 label="last month"
                 @input="changeGraphDate"
@@ -122,9 +122,50 @@
           </v-row>
         </v-col>
         <v-col cols="3" class="pt-16 pl-8">
+          <v-container fluid class="pb-16">
+            <v-row class="" justify="center" align="center">
+              <v-col cols="8" align="center" class="pr-0">
+                <v-progress-circular
+                  :size="150"
+                  :width="15"
+                  :rotate="-90"
+                  :value="recoveryPercentage"
+                  color="green"
+                >
+                  <div class="text-h4">
+                    {{recoveryPercentage}}%
+                  </div>
+                </v-progress-circular>
+              </v-col>
+              <v-col cols="1" class="pl-0">
+                <div class="text-body-1 font-weight-black pt-4" style="writing-mode: vertical-rl; text-orientation: mixed;">
+                  Recovery Rate
+                </div>
+              </v-col>
+            </v-row>
+            <v-row justify="center" align="center">
+              <v-col cols="8" align="center" class="pr-0">
+                <v-progress-circular
+                  :size="150"
+                  :width="15"
+                  :rotate="-90"
+                  :value="deathPercentage"
+                >
+                  <div class="text-h4">
+                    {{deathPercentage}}%
+                  </div>
+                </v-progress-circular>
+              </v-col>
+              <v-col cols="1" class="pl-0">
+                <div class="text-body-1 font-weight-black pt-4" style="writing-mode: vertical-rl; text-orientation: mixed;">
+                  Death Rate
+                </div>
+              </v-col>
+            </v-row>
+          </v-container>
           <v-container>
             <v-row>
-              <v-col class="text-h3 pt-0">
+              <v-col class="text-h3 pt-0" align="center">
                 NEWS
               </v-col>
             </v-row>
@@ -164,7 +205,11 @@ import axios from "axios";
         countriesData:[],
         selectedCountry: '',
         dateSelection:['month','year'],
-        graphsDate: 'month'
+        graphsDate: 'month',
+        // cases: null,
+        // recovered: null,
+        // activeCases: null,
+        // deaths: null,
       }
     },
 
@@ -333,6 +378,7 @@ import axios from "axios";
         }
         newCases.reverse()
         const result = newCases.filter(v => v!==0)
+        console.log(result)
         return result
       },
       NewDeaths(){
@@ -346,6 +392,13 @@ import axios from "axios";
         const result = newDeaths.filter(v => v!==0)
         return result
       },
+      recoveryPercentage(){
+        const recoveredPercentage = (this.dailyData.recovered*100)/(this.dailyData.total_cases - this.dailyData.active_cases)
+        return recoveredPercentage.toFixed(2)
+      },
+      deathPercentage(){
+        return (this.dailyData.death_ratio * 100).toFixed(2)
+      }
     }
   }
 </script>
