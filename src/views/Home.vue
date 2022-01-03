@@ -8,7 +8,22 @@
               <DataBoxes :daily="dailyData" :countries="countries" :dailyNew="newData" @get-country="changeSelectedCountry" />
             </v-col>
           </v-row>
-          <v-row class="pt-16">
+          <v-row justify="center" class="">
+            <v-col cols="2" class="px-7">
+              <v-select
+                v-model="graphsDate"
+                :items="dateSelection"
+                flat
+                solo
+                single-line
+                dense
+                label="last month"
+                @input="changeGraphDate"
+              >
+              </v-select>
+            </v-col>
+          </v-row>
+          <v-row class="">
             <v-col cols="6" align="center" class="pa-6">
               <div
                 class="mx-auto"
@@ -144,23 +159,25 @@ import axios from "axios";
         countryTitle: 'Global',
         countries:[],
         dateData: [],
-        dates:[],
         dailyData:[],
         newData:[],
-        countriesData:[]
+        countriesData:[],
+        selectedCountry: '',
+        dateSelection:['month','year'],
+        graphsDate: 'month'
       }
     },
 
     async created() {
       this.fetchNewsData()
-      await this.fetchCovidData()
+      await this.fetchCovidDataMonth()
       await this.fetchCovidSummaryData()
       await this.fetchGlobalHistoryData()
       this.loading = false
     },
 
     methods: {
-      async fetchCovidData(country) {
+      async fetchCovidDataMonth(country) {
 
         const options = {
           method: 'GET',
@@ -173,7 +190,25 @@ import axios from "axios";
         };
         let self = this
         axios.request(options).then(function (response) {
-          self.dates = Object.keys(response.data.data);
+          self.dateData = Object.values(response.data.data);
+
+        }).catch(function (error) {
+          console.error(error);
+        });
+      },
+      async fetchCovidDataYear(country) {
+
+        const options = {
+          method: 'GET',
+          url: 'https://coronavirus-map.p.rapidapi.com/v1/spots/year',
+          params: {region: `${country}`},
+          headers: {
+            'x-rapidapi-host': 'coronavirus-map.p.rapidapi.com',
+            'x-rapidapi-key': '4775c01834msh095a5c3918e458fp11cc9djsn1bbceae4a4c6'
+          }
+        };
+        let self = this
+        axios.request(options).then(function (response) {
           self.dateData = Object.values(response.data.data);
 
         }).catch(function (error) {
@@ -233,19 +268,32 @@ import axios from "axios";
         };
         let self = this
         axios.request(options).then(function (response) {
-          self.dates = Object.keys(response.data.data);
           self.dateData = Object.values(response.data.data);
-          console.log(response.data);
         }).catch(function (error) {
           console.error(error);
         });
       },
 
       changeSelectedCountry(country) {
+        this.selectedCountry = country
         this.dailyData = this.countriesData[country]
-        this.newData = this.countriesData[country].change   
-        this.fetchCovidData(country)
+        this.newData = this.countriesData[country].change
+        if (this.graphsDate === 'month') {
+          this.fetchCovidDataMonth(country)
+        }
+        if (this.graphsDate === 'year') {
+          this.fetchCovidDataYear(country)
+        }
       },
+
+      changeGraphDate(){
+        if (this.graphsDate === 'month') {
+          this.fetchCovidDataMonth(this.selectedCountry)
+        }
+        if (this.graphsDate === 'year') {
+          this.fetchCovidDataYear(this.selectedCountry)
+        }
+      }
       // async clearCountryData() {
       //   this.loading = true
       //   const data = await this.fetchCovidData()
@@ -261,7 +309,9 @@ import axios from "axios";
           return item.total_cases
         })
         cases.reverse()
-        cases.splice(0, cases.length-23)
+        if (this.graphsDate === 'month') {
+          cases.splice(0, cases.length-23)
+        }
         return cases
       },
       TotalDeaths(){
@@ -269,8 +319,9 @@ import axios from "axios";
           return item.deaths
         })
         cases.reverse()
-        cases.splice(0, cases.length-23)
-        console.log(cases)
+        if (this.graphsDate === 'month') {
+          cases.splice(0, cases.length-23)
+        }
         return cases
       },
       NewCases(){
@@ -281,17 +332,19 @@ import axios from "axios";
           newCases.push(newCase)
         }
         newCases.reverse()
-        return newCases
+        const result = newCases.filter(v => v!==0)
+        return result
       },
       NewDeaths(){
         const allCases = this.dateData
-        const newCases = []
+        const newDeaths = []
         for (let i = 1; i < 23; i++) {
-          let newCase = allCases[i].deaths - allCases[i-1].deaths
-          newCases.push(newCase)
+          let newDeath = Math.abs(allCases[i].deaths - allCases[i-1].deaths)
+          newDeaths.push(newDeath)
         }
-        newCases.reverse()
-        return newCases
+        newDeaths.reverse()
+        const result = newDeaths.filter(v => v!==0)
+        return result
       },
     }
   }
