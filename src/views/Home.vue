@@ -25,141 +25,31 @@
           </v-row>
           <v-row class="">
             <v-col cols="6" align="center" class="pa-6">
-              <div
-                class="mx-auto"
-                color="grey lighten-4"
-              >
-                <v-sheet color="transparent">
-                  <v-sparkline
-                    :value="TotalCases"
-                    color="secondary"
-                    height="100"
-                    padding="10"
-                    stroke-linecap="round"
-                    smooth
-                  >
-                  </v-sparkline>
-                </v-sheet>
-                <div class="text-h6 font-weight-black">
-                  Total Cases 
-                </div>
-                <div class="text-caption">
-                  the last month
-                </div>
-              </div>
+              <Graphs :graphValues="TotalCases" :dateType="graphsDate" :graphTitle="'Total Cases'" />
             </v-col>
             <v-col cols="6" align="center" class="pa-6">
-              <div>
-                <v-sheet color="transparent">
-                  <v-sparkline
-                    :value="TotalDeaths"
-                    color="secondary"
-                    height="100"
-                    padding="10"
-                    stroke-linecap="round"
-                    smooth
-                  >
-                  </v-sparkline>
-                </v-sheet>
-                <div class="text-body-1 font-weight-black">
-                  Total Deaths
-                </div>
-                <div class="text-caption">
-                  the last month
-                </div>
-              </div>
+              <Graphs :graphValues="TotalDeaths" :dateType="graphsDate" :graphTitle="'Total Deaths'" />
             </v-col>
           </v-row>
-          <v-row class="pt-16">
+          <v-row>
             <v-col cols="6" align="center" class="pa-6">
-              <div
-                class="mx-auto"
-                color="grey lighten-4"
-              >
-                <v-sheet color="transparent">
-                  <v-sparkline
-                    :value="NewCases"
-                    color="secondary"
-                    height="100"
-                    padding="10"
-                    stroke-linecap="round"
-                    smooth
-                  >
-                  </v-sparkline>
-                </v-sheet>
-                <div class="text-body-1 font-weight-black">
-                  New Cases
-                </div>
-                <div class="text-caption">
-                  the last month
-                </div>
-              </div>
+              <Graphs :graphValues="NewCases" :dateType="graphsDate" :graphTitle="'New Cases'" />
             </v-col>
             <v-col cols="6" align="center" class="pa-6">
-              <div
-                class="mx-auto"
-                color="grey lighten-4"
-              >
-                <v-sheet color="transparent">
-                  <v-sparkline
-                    :value="NewDeaths"
-                    color="secondary"
-                    height="100"
-                    padding="20"
-                    stroke-linecap="round"
-                    smooth
-                  >
-                  </v-sparkline>
-                </v-sheet>
-                <div class="text-body-1 font-weight-black">
-                  New Deaths
-                </div>
-                <div class="text-caption">
-                  the last month
-                </div>
-              </div>
+              <Graphs :graphValues="NewDeaths" :dateType="graphsDate" :graphTitle="'New Deaths'" />
             </v-col>
           </v-row>
-        </v-col>
+        </v-col>    
         <v-col cols="3" class="pt-16 pl-8">
           <v-container fluid class="pb-16">
-            <v-row class="" justify="center" align="center">
-              <v-col cols="8" align="center" class="pr-0">
-                <v-progress-circular
-                  :size="150"
-                  :width="15"
-                  :rotate="-90"
-                  :value="recoveryPercentage"
-                  color="green"
-                >
-                  <div class="text-h4">
-                    {{recoveryPercentage}}%
-                  </div>
-                </v-progress-circular>
-              </v-col>
-              <v-col cols="1" class="pl-0">
-                <div class="text-body-1 font-weight-black pt-4" style="writing-mode: vertical-rl; text-orientation: mixed;">
-                  Recovery Rate
-                </div>
+            <v-row>
+              <v-col cols="12" align="center" class="pa-0 mb-10">
+                <CircularProgessionBar :percentage="recoveryPercentage" :title="'Recovery Rate'" :color="'green'" />
               </v-col>
             </v-row>
-            <v-row justify="center" align="center">
-              <v-col cols="8" align="center" class="pr-0">
-                <v-progress-circular
-                  :size="150"
-                  :width="15"
-                  :rotate="-90"
-                  :value="deathPercentage"
-                >
-                  <div class="text-h4">
-                    {{deathPercentage}}%
-                  </div>
-                </v-progress-circular>
-              </v-col>
-              <v-col cols="1" class="pl-0">
-                <div class="text-body-1 font-weight-black pt-4" style="writing-mode: vertical-rl; text-orientation: mixed;">
-                  Death Rate
-                </div>
+            <v-row>
+              <v-col cols="12" align="center" class="pa-0">
+                <CircularProgessionBar :percentage="deathPercentage" :title="'Death Rate'" :color="'black'" />
               </v-col>
             </v-row>
           </v-container>
@@ -197,9 +87,11 @@
 import DataBoxes from '../components/DataBoxes.vue'
 import Articles from '../components/NewsArticles.vue'
 import axios from "axios";
+import Graphs from '../components/Graphs.vue';
+import CircularProgessionBar from '../components/CircularProgessionBar.vue';
 
   export default {
-    components: { Articles, DataBoxes },
+    components: { Articles, DataBoxes, Graphs, CircularProgessionBar },
 
     data(){
       return{
@@ -387,7 +279,6 @@ import axios from "axios";
         }
         newCases.reverse()
         const result = newCases.filter(v => v!==0)
-        console.log(result)
         return result
       },
       NewDeaths(){
